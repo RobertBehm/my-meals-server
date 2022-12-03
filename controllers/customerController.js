@@ -1,21 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const Customer = require("../models/customerModel");
+const Customers = require("../models/Customers");
 
-router.get("/getallcustomers", async (req, res) => {
+const getAllCustomers = async (req, res) => {
   try {
-    const customers = await Customer.find({});
+    const customers = await Customers.find({});
     res.send(customers);
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/addcustomer", async (req, res) => {
+const addCustomer = async (req, res) => {
   const customer = req.body.customer;
 
   try {
-    const newcustomer = new Customer({
+    const newcustomer = new Customers({
       name: customer.name,
       email: customer.email,
       address: customer.address,
@@ -30,19 +28,21 @@ router.post("/addcustomer", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/deletecustomer", async (req, res) => {
+const deleteCustomer = async (req, res) => {
   const customerid = req.body.customerid;
 
   try {
-    await Customer.findOneAndDelete({ _id: customerid });
+    await Customers.findOneAndDelete({ _id: customerid });
     res.send("Customer Deleted successfully");
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-module.exports = router;
-
-module.exports = router;
+module.exports = {
+  getAllCustomers,
+  addCustomer,
+  deleteCustomer,
+};

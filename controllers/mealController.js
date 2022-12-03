@@ -1,21 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const Meal = require("../models/mealModel");
+const Meals = require("../models/Meals");
 
-router.get("/getallmeals", async (req, res) => {
+const getAllMeals = async (req, res) => {
   try {
-    const meals = await Meal.find({});
+    const meals = await Meals.find({});
     res.send(meals);
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/addmeal", async (req, res) => {
+const addMeal = async (req, res) => {
   const meal = req.body.meal;
 
   try {
-    const newmeal = new Meal({
+    const newmeal = new Meals({
       name: meal.name,
       image: meal.image,
       sizes: ["regular", "large"],
@@ -28,9 +26,9 @@ router.post("/addmeal", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/getmealbyid", async (req, res) => {
+const getMealById = async (req, res) => {
   const mealid = req.body.mealid;
 
   try {
@@ -39,13 +37,13 @@ router.post("/getmealbyid", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/editmeal", async (req, res) => {
+const editMeal = async (req, res) => {
   const editedmeal = req.body.editedmeal;
 
   try {
-    const meal = await Meal.findOne({ _id: editedmeal._id });
+    const meal = await Meals.findOne({ _id: editedmeal._id });
 
     (meal.name = editedmeal.name),
       (meal.description = editedmeal.description),
@@ -59,17 +57,23 @@ router.post("/editmeal", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/deletemeal", async (req, res) => {
+const deleteMeal = async (req, res) => {
   const mealid = req.body.mealid;
 
   try {
-    await Meal.findOneAndDelete({ _id: mealid });
+    await Meals.findOneAndDelete({ _id: mealid });
     res.send("Meal Deleted successfully");
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  getAllMeals,
+  addMeal,
+  getMealById,
+  editMeal,
+  deleteMeal,
+};

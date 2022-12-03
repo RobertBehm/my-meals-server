@@ -1,12 +1,10 @@
-const express = require("express");
-const router = express.Router();
+const Orders = require("../models/Orders");
 const { v4: uuidv4 } = require("uuid");
 const stripe = require("stripe")(
   "sk_test_51KOlUPGRMoSZxLCTmrvBM8TR0SuEQTRYxoI5xKfFlWxYrPmEsoIwtrzAc90j0m9pATJmHYEQnYc4bylTk9pStXlg00ZvpIRtoc"
 );
-const Order = require("../models/orderModel");
 
-router.post("/placeorder", async (req, res) => {
+const placeOrder = async (req, res) => {
   const { token, subtotal, currentUser, cartItems } = req.body;
 
   try {
@@ -14,7 +12,6 @@ router.post("/placeorder", async (req, res) => {
       email: token.email,
       source: token.id,
     });
-
     const payment = await stripe.charges.create(
       {
         amount: subtotal * 100,
@@ -22,12 +19,10 @@ router.post("/placeorder", async (req, res) => {
         customer: customer.id,
         receipt_email: token.email,
       },
-
       {
         idempotencyKey: uuidv4(),
       }
     );
-
     if (payment) {
       const neworder = new Order({
         name: currentUser.name,
@@ -43,7 +38,6 @@ router.post("/placeorder", async (req, res) => {
         },
         transactionId: payment.source.id,
       });
-
       neworder.save();
 
       res.send("Order placed successfully");
@@ -53,37 +47,42 @@ router.post("/placeorder", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: "Something went wrong" + error });
   }
-});
+};
 
-router.post("/getuserorders", async (req, res) => {
+const getUserOrders = async (req, res) => {
   const { userid } = req.body;
   try {
-    const orders = await Order.find({ userid: userid }).sort({ _id: -1 });
+    const orders = await Orders.find({ userid: userid }).sort({ _id: -1 });
     res.send(orders);
   } catch (error) {
     return res.status(400).json({ message: "Something went wrong" });
   }
-});
+};
 
-router.get("/getallorders", async (req, res) => {
+const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({});
+    const orders = await Orders.find({});
     res.send(orders);
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-router.post("/deliverorder", async (req, res) => {
+const deliverOrder = async (req, res) => {
   const orderid = req.body.orderid;
   try {
-    const order = await Order.findOne({ _id: orderid });
+    const order = await Orders.findOne({ _id: orderid });
     order.isDelivered = true;
     await order.save();
     res.send("Order Delivered Successfully");
   } catch (error) {
     return res.status(400).json({ message: error });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  placeOrder,
+  getUserOrders,
+  getAllOrders,
+  deliverOrder,
+};
