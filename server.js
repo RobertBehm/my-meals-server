@@ -66,7 +66,9 @@ app.use("/api/v1/orders", orderRouter);
 const port = process.env.PORT || 8000;
 const start = async () => {
   try {
-    await connectDB(process.env.MONGO_URL);
+    await connectDB(
+      "mongodb+srv://RobertBehm:Branchave@cluster0.wekxx.mongodb.net/smd-meals"
+    );
     app.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
